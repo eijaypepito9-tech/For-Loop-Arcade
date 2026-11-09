@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sir Eijay’s For Loop Arcade (C Edition)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#120B2E;--panel:#1C1445;--line:#3A2C7A;--cy:#2EE6D6;--pk:#FF4F9A;--yl:#FFD93D;--gr:#5CFFA1;--tx:#EDE9FF;--mu:#9C93C9}
+*{box-sizing:border-box;margin:0}
+html,body{min-height:100%}
+body{color:var(--tx);font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;font-weight:500;background:radial-gradient(ellipse at 50% -10%,#3B1F7A 0%,transparent 60%),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 2px,transparent 2px 4px),var(--bg);background-attachment:fixed;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#app{max-width:980px;margin:0 auto;padding:22px 20px 40px;min-height:100vh;opacity:0}
+#app.enter{animation:in .55s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes in{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+.px{font-family:'Press Start 2P',monospace;line-height:1.5}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:var(--cy)}
+.hud b{color:var(--yl)}
+.seg{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;margin:12px 0 22px}
+.seg i{height:8px;border-radius:2px;background:var(--line)}
+.seg i.d{background:var(--cy);box-shadow:0 0 8px var(--cy)}
+.seg i.c{background:var(--pk);box-shadow:0 0 8px var(--pk)}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.learn{border-color:var(--pk);box-shadow:0 0 0 3px rgba(255,79,154,.12)}
+.tag{display:inline-block;font:9px 'Press Start 2P',monospace;color:var(--bg);background:var(--pk);padding:5px 8px;border-radius:4px;margin-bottom:10px}
+.learn p{font-size:clamp(14px,1.7vw,17px);line-height:1.65}
+.code{background:#0B0720;border-color:var(--cy);padding:16px 14px;overflow-x:auto;counter-reset:ln;font-size:clamp(13px,1.7vw,18px);font-weight:700;line-height:2.1}
+.code div{white-space:pre;counter-increment:ln}
+.code div::before{content:counter(ln);display:inline-block;width:2.2em;margin-right:1em;text-align:right;color:#4C3F8F;font-weight:500}
+.code .cm{color:#7E74B8}.br{color:var(--cy);font-size:1.3em;line-height:0;margin:0 .1em}.mk{display:inline-block;min-width:3.2em;text-align:center;padding:0 .4em;border-radius:6px;background:rgba(255,217,61,.14);border-bottom:2px dashed var(--yl);color:var(--yl);font-weight:800;letter-spacing:.15em}.mk.rv{letter-spacing:0;min-width:0;background:rgba(92,255,161,.14);border-bottom:2px solid var(--gr);color:var(--gr);animation:rv .5s cubic-bezier(.2,1.4,.4,1)}@keyframes rv{from{transform:scale(1.4);opacity:.3}to{transform:none;opacity:1}}
+input.b{font:inherit;color:var(--yl);background:rgba(255,217,61,.09);border:0;border-bottom:3px solid var(--yl);border-radius:5px 5px 0 0;padding:0 .2em;margin:0 .32em;width:calc(var(--w)*1ch + 1.4ch);text-align:center;outline:0;transition:background .25s,border-color .25s}
+input.b:focus{background:rgba(255,217,61,.2);box-shadow:0 0 12px rgba(255,217,61,.35)}
+input.b.ok{color:var(--gr);border-color:var(--gr);background:rgba(92,255,161,.1)}
+input.b.bad{color:var(--pk);border-color:var(--pk);animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.hint{max-height:0;opacity:0;overflow:hidden;transition:max-height .5s ease,opacity .4s ease,margin .4s;border-left:4px solid var(--yl);padding:0 14px;color:var(--yl);font-size:14px;line-height:1.6}
+.hint.on{max-height:140px;opacity:1;margin:0 0 14px;padding:8px 14px}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.btn{font:10px 'Press Start 2P',monospace;line-height:1.4;padding:14px 18px;border-radius:8px;border:2px solid var(--cy);background:transparent;color:var(--cy);cursor:pointer;transition:transform .15s,background .2s,color .2s;touch-action:manipulation}
+.btn.go{background:var(--cy);color:var(--bg);box-shadow:0 4px 0 #139B92}
+.btn.hot{background:var(--pk);border-color:var(--pk);color:#fff;box-shadow:0 4px 0 #B3285E}
+.btn.dim{border-color:var(--line);color:var(--mu)}
+.btn:disabled{opacity:.45;cursor:default}
+@media (hover:hover){.btn:hover:not(:disabled){transform:translateY(-2px)}}
+.btn:active:not(:disabled){transform:translateY(2px)}
+.btn:focus-visible{outline:3px solid var(--yl);outline-offset:3px}input.b:focus-visible{outline:0}
+.fb{flex:1;min-width:140px;font-weight:800;font-size:15px}
+.fb.ok{color:var(--gr)}.fb.no{color:var(--pk)}
+.pop{position:fixed;left:50%;top:38%;font:20px 'Press Start 2P',monospace;color:var(--gr);text-shadow:0 0 16px var(--gr);animation:pop 1s ease forwards;pointer-events:none}
+@keyframes pop{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-70px)}}
+.hero{text-align:center;padding-top:6vh}
+.pre{display:inline-block;font:clamp(10px,2.2vw,16px) 'Press Start 2P',monospace;color:var(--bg);background:var(--yl);padding:8px 14px;border-radius:6px;transform:rotate(-3deg);box-shadow:4px 4px 0 var(--pk);margin-bottom:10px}.logo{font-size:clamp(34px,9.5vw,92px);line-height:1.05;margin-bottom:34px;color:#fff;-webkit-text-stroke:2px #0B0720;paint-order:stroke fill;text-shadow:0 5px 0 var(--cy),0 10px 0 #139B92,0 15px 0 var(--pk),0 20px 0 #B3285E,0 30px 30px rgba(0,0,0,.6);animation:fl 4s infinite}.logo em{display:block;font-style:normal;color:var(--yl)}
+@keyframes fl{0%,92%,100%{opacity:1}94%{opacity:.5}96%{opacity:1}98%{opacity:.6}}
+.sub{margin:22px auto 26px;max-width:560px;line-height:1.7;color:var(--mu)}
+.rules{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;font-size:13px}
+.rules span{border:2px solid var(--line);border-radius:8px;padding:8px 12px}
+.name{display:block;margin:0 auto 22px;width:min(360px,100%);font:700 17px 'JetBrains Mono',monospace;color:var(--tx);background:#0B0720;border:2px solid var(--cy);border-radius:8px;padding:14px;text-align:center;outline:0}
+.name:focus{box-shadow:0 0 14px rgba(46,230,214,.5)}
+.wl{font-size:11px;color:var(--pk);margin-bottom:18px}
+.wt{font-size:clamp(20px,4.6vw,38px);color:var(--yl);text-shadow:0 0 16px rgba(255,217,61,.6)}
+.big{font:clamp(48px,11vw,96px) 'Press Start 2P',monospace;color:var(--yl);text-shadow:0 0 22px rgba(255,217,61,.6)}
+.big small{font-size:.35em;color:var(--mu)}
+.rk{font:clamp(60px,14vw,120px) 'Press Start 2P',monospace;animation:slam .7s cubic-bezier(.2,1.3,.4,1) .9s both}
+@keyframes slam{from{opacity:0;transform:scale(3.2) rotate(-14deg)}to{opacity:1;transform:rotate(-5deg)}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+.stats .card{text-align:center;margin:0;padding:14px 8px}
+.stats b{display:block;font:15px 'Press Start 2P',monospace;color:var(--cy);margin-bottom:8px}
+.stats span{font-size:12px;color:var(--mu)}
+.wb{display:grid;grid-template-columns:170px 1fr 54px;gap:12px;align-items:center;margin:10px 0;font-size:13px}
+.wb div{height:14px;border-radius:7px;background:var(--line);overflow:hidden}
+.wb i{display:block;height:100%;width:0;border-radius:7px;background:linear-gradient(90deg,var(--pk),var(--yl));transition:width 1.3s cubic-bezier(.2,.8,.2,1) 1.2s}
+.shot{text-align:center;margin-top:26px;color:var(--mu);font-size:13px}
+@media (max-width:640px){
+#app{padding:14px 12px 30px}
+.hud{font-size:9px}
+.stats{grid-template-columns:repeat(2,1fr)}
+.wb{grid-template-columns:1fr 54px}.wb div{grid-column:1/-1;grid-row:2}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}#app{opacity:1}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const WORLDS=["ANATOMY OF A FOR","COUNTING & STEPS","FOR LOOPS + MATH","NESTED & PATTERNS","BOSS STAGE"];
+const Q=[
+{w:0,t:"A *for* loop packs three parts into one line: where to start, when to keep going, and how to change the counter.",c:"__0__ (int i = 1; i <= 3; i++) {\n    printf(\"%d \", i);\n}",a:[["for"]],h:"Three letters. It bundles start, condition and update."},
+{w:0,t:"The three parts inside the parentheses are separated by *semicolons*, not commas.",c:"for (int i = 0 __0__ i < 4 __1__ i++) {\n    printf(\"Hi\\n\");\n}",a:[[";"],[";"]],h:"The same character that ends most C statements."},
+{w:0,t:"The first part runs *once*, before the very first pass. It usually creates the counter and gives it a starting value.",c:"for (int i = __0__; i <= 3; i++) {\n    printf(\"%d \", i);\n}\n// prints 1 2 3",a:[["1"]],h:"Look at the first number the comment says is printed."},
+{w:0,t:"Follow the loop pass by pass. The counter changes *after* the body runs, and the condition is checked before every pass.",c:"int total = 0;\nfor (int i = 0; i < 4; i++) {\n    total++;\n}\nprintf(\"%d\", total);   // prints __0__",a:[["4"]],h:"The body runs once for each value of i from 0 to 3."},
+{w:1,t:"To count down, start high, keep going while the counter is *greater than or equal to* the limit, and use the *decrement* operator.",c:"for (int i = 5; i __0__ 1; i__1__) {\n    printf(\"%d \", i);\n}\n// prints 5 4 3 2 1",a:[[">="],["--","-=1"]],h:"Keep going while i is at least 1, and subtract 1 each pass."},
+{w:1,t:"The update part can move by any *step*. Use a compound assignment to jump by more than one.",c:"for (int i = 0; i <= 10; i __0__ 5) {\n    printf(\"%d \", i);\n}\n// prints 0 5 10",a:[["+="]],h:"Add 5 to i each pass."},
+{w:1,t:"Whether the condition uses *less than* or *less than or equal to* decides if the last value is included.",c:"int c = 0;\nfor (int i = 1; i <= 5; i++) {\n    c++;\n}\nprintf(\"%d\", c);   // prints __0__",a:[["5"]],h:"i takes the values 1, 2, 3, 4 and 5."},
+{w:1,t:"If the counter is declared *outside* the loop, it still exists afterwards and keeps the value that made the condition false.",c:"int i;\nfor (i = 0; i < 3; i++) {\n    printf(\"x\");\n}\nprintf(\"%d\", i);   // prints xxx and then __0__",a:[["3"]],h:"The loop stops the moment i is no longer less than 3."},
+{w:2,t:"The accumulator pattern: set a *total* to 0 before the loop, then add the counter to it inside the loop.",c:"int sum = 0;\nfor (int i = 1; i <= 4; i++) {\n    sum __0__ i;\n}\n// sum ends up as 10",a:[["+="]],h:"A shortcut that means sum = sum + i."},
+{w:2,t:"The remainder after dividing by 2 is *0* for every even number. Use it with an if inside the loop.",c:"for (int i = 1; i <= 6; i++) {\n    if (i __0__ 2 == 0) {\n        printf(\"%d \", i);\n    }\n}\n// prints 2 4 6",a:[["%"]],h:"The modulo sign."},
+{w:2,t:"A running *product* must start at 1, not 0, and then it is multiplied by the counter on every pass.",c:"int fact = 1;\nfor (int i = 1; i <= 5; i++) {\n    fact = fact __0__ i;\n}\n// fact ends up as 120",a:[["*"]],h:"Multiply the running product by i."},
+{w:2,t:"A for loop is perfect when you know *how many* times to repeat, such as reading n numbers from the user.",c:"int n, x, sum = 0;\nscanf(\"%d\", &n);\nfor (int i = 0; i __0__ n; i++) {\n    scanf(\"%d\", &x);\n    sum += x;\n}",a:[["<"]],h:"Counting from 0, the counter must stay below n."},
+{w:3,t:"A loop inside a loop is *nested*. For every single pass of the outer loop, the inner loop runs all the way through.",c:"int c = 0;\nfor (int i = 0; i < 3; i++) {\n    for (int j = 0; j < 2; j++) {\n        c++;\n    }\n}\nprintf(\"%d\", c);   // prints __0__",a:[["6"]],h:"Count the inner passes for each outer pass, then add them up."},
+{w:3,t:"The inner loop draws one row of stars. Then a *newline* moves the cursor down so the next row starts on a fresh line.",c:"for (int row = 1; row <= 3; row++) {\n    for (int c = 1; c <= 4; c++) {\n        printf(\"*\");\n    }\n    printf(\"__0__\");\n}",a:[["\\n"]],h:"A backslash followed by the letter n."},
+{w:3,t:"For a triangle, the inner loop runs up to the *row number*, so every row is one star longer than the last.",c:"for (int row = 1; row <= 4; row++) {\n    for (int c = 1; c <= __0__; c++) {\n        printf(\"*\");\n    }\n    printf(\"\\n\");\n}",a:[["row"]],h:"Row 1 gets 1 star and row 2 gets 2 stars, so use the outer counter."},
+{w:3,t:"Nested loops can build a table. Each cell is the outer counter and the inner counter *multiplied* together.",c:"for (int i = 1; i <= 3; i++) {\n    for (int j = 1; j <= 3; j++) {\n        printf(\"%d \", i __0__ j);\n    }\n    printf(\"\\n\");\n}\n// last row: 3 6 9",a:[["*"]],h:"Row 3, column 2 shows 6."},
+{w:4,t:"*continue* skips the rest of the current pass and jumps straight to the update part. The loop itself carries on.",c:"for (int i = 1; i <= 5; i++) {\n    if (i == 3) {\n        __0__;\n    }\n    printf(\"%d \", i);\n}\n// prints 1 2 4 5",a:[["continue"]],h:"It skips only the current pass, not the whole loop."},
+{w:4,t:"*break* leaves the whole loop at once, even if the condition could still be true.",c:"for (int i = 1; i <= 10; i++) {\n    if (i * i > 20) {\n        __0__;\n    }\n    printf(\"%d \", i);\n}\n// prints 1 2 3 4",a:[["break"]],h:"The statement that exits the entire loop."},
+{w:4,t:"Trace it on paper: write i and x after every pass. Multiplication happens *before* addition.",c:"int x = 0;\nfor (int i = 1; i <= 3; i++) {\n    x = x + i * 2;\n}\nprintf(\"%d\", x);   // prints __0__",a:[["12"]],h:"The passes add 2, then 4, then 6."},
+{w:4,t:"Final boss: a number is not prime if any smaller number from 2 up divides it *evenly*. The remainder tells you.",c:"int n = 9, isPrime = 1;\nfor (int i = 2; i < n; i++) {\n    if (n __0__ i == 0) {\n        isPrime = __1__;\n        break;\n    }\n}\n// isPrime ends up as 0 for 9",a:[["%"],["0"]],h:"A zero remainder means it divides evenly, so 9 is not prime."}
+];
+const app=document.getElementById('app');
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const nz=s=>s.replace(/\s+/g,'');
+const mk=t=>esc(t).replace(/\*(.+?)\*/g,(m,w)=>'<span class="mk" data-w="'+w+'">???</span>');
+let S={name:'',i:0,score:0,res:[],t0:0},st={};
+function show(h){app.className='';app.innerHTML=h;void app.offsetWidth;app.className='enter';window.scrollTo(0,0)}
+function title(){
+ show('<div class="hero"><span class="px pre">SIR EIJAY’S</span><h1 class="px logo">FOR LOOP<em>ARCADE</em></h1><p class="px" style="font-size:clamp(9px,2vw,13px);color:var(--cy);margin:-10px 0 22px;letter-spacing:.12em">C PROGRAMMING EDITION</p><p class="sub">Fill in the missing code. Every level teaches one new thing about for loops in C, so read the pink card before you type.</p>'
+ +'<div class="rules"><span>+10 first try</span><span>−2 per wrong try</span><span>−3 for a hint</span></div>'
+ +'<input class="name" id="nm" maxlength="30" placeholder="Enter your name" autocomplete="off"><button class="btn go" id="st">START ▶</button></div>');
+ const n=document.getElementById('nm');n.focus();
+ const go=()=>{S.name=n.value.trim()||'Player';S.t0=Date.now();world()};
+ document.getElementById('st').onclick=go;n.onkeydown=e=>{if(e.key=='Enter')go()};
+}
+function world(){
+ const w=Q[S.i].w;
+ show('<div class="hero"><p class="px wl">WORLD '+(w+1)+' OF 5</p><h1 class="px wt">'+esc(WORLDS[w])+'</h1><p class="sub">'+(w==4?'Last four questions. This is the boss stage.':'Four questions. Read, think, type.')+'</p><button class="btn go" id="go">GO ▶</button></div>');
+ document.getElementById('go').onclick=question;
+}
+function hud(){
+ let s='';for(let k=0;k<Q.length;k++)s+='<i class="'+(k<S.i?'d':k==S.i?'c':'')+'"></i>';
+ return '<div class="hud px"><span>W'+(Q[S.i].w+1)+' · '+esc(WORLDS[Q[S.i].w])+'</span><span>SCORE <b id="sc">'+S.score+'</b></span></div><div class="seg">'+s+'</div>';
+}
+function question(){
+ const q=Q[S.i];st={wrong:0,hint:false,done:false};
+ const code=q.c.split('\n').map(l=>{
+  let h=esc(l).replace(/(\/\/.*)$/,'<span class="cm">$1</span>').replace(/[\[\]]/g,m=>'<span class="br">'+m+'</span>');
+  h=h.replace(/__(\d)__/g,(m,k)=>'<input class="b" data-k="'+k+'" style="--w:'+Math.max(2,...q.a[k].map(x=>x.length))+'" autocomplete="off" autocapitalize="off" spellcheck="false">');
+  return '<div>'+h+'</div>';}).join('');
+ show(hud()+'<div class="card learn"><span class="tag">LEARN</span><p>'+mk(q.t)+'</p></div><div class="card code">'+code+'</div>'
+ +'<div class="hint" id="hn">💡 '+esc(q.h)+'</div><div class="bar"><button class="btn dim" id="hb">HINT (−3)</button><button class="btn dim" id="sk" hidden>SKIP</button><span class="fb" id="fb"></span><button class="btn go" id="ck">CHECK ▶</button></div>');
+ const ins=[...app.querySelectorAll('input.b')];ins[0].focus();
+ ins.forEach(i=>i.onkeydown=e=>{if(e.key=='Enter')check()});
+ document.getElementById('ck').onclick=check;
+ document.getElementById('hb').onclick=()=>{st.hint=true;document.getElementById('hn').classList.add('on');const b=document.getElementById('hb');b.disabled=true;b.textContent='HINT USED'};
+ document.getElementById('sk').onclick=()=>finish(0,true);
+}
+function check(){
+ if(st.done)return;
+ const q=Q[S.i],ins=[...app.querySelectorAll('input.b')];let all=true;
+ ins.forEach(i=>{const ok=q.a[+i.dataset.k].map(nz).includes(nz(i.value));i.classList.remove('bad');void i.offsetWidth;i.classList.toggle('ok',ok);if(!ok){all=false;i.classList.add('bad')}});
+ const fb=document.getElementById('fb');
+ if(all){finish(Math.max(2,10-2*st.wrong-(st.hint?3:0)),false)}
+ else{st.wrong++;fb.className='fb no';fb.textContent='Not quite. Check the red blanks and try again.';if(st.wrong>=2)document.getElementById('sk').hidden=false;}
+}
+function finish(pts,skip){
+ st.done=true;S.score+=pts;S.res[S.i]={pts,wrong:st.wrong,hint:st.hint,skip};
+ document.getElementById('sc').textContent=S.score;
+ app.querySelectorAll('input.b').forEach(i=>i.disabled=true);
+ ['ck','hb','sk'].forEach(id=>document.getElementById(id).hidden=true);
+ const fb=document.getElementById('fb');
+ fb.className='fb '+(skip?'no':'ok');fb.textContent=skip?'Skipped. No points, but keep going.':'Correct! +'+pts;
+ if(!skip){app.querySelectorAll('.mk').forEach(m=>{m.textContent=m.dataset.w;m.classList.add('rv')});const p=document.createElement('div');p.className='pop';p.textContent='+'+pts;document.body.appendChild(p);setTimeout(()=>p.remove(),1000)}
+ const n=document.createElement('button');n.className='btn hot';n.id='nx';n.textContent=S.i==Q.length-1?'FINISH ▶':'NEXT ▶';
+ n.onclick=next;fb.after(n);n.focus();
+}
+function next(){S.i++;if(S.i>=Q.length)return end();Q[S.i].w!=Q[S.i-1].w?world():question()}
+document.addEventListener('keydown',e=>{const n=document.getElementById('nx');if(e.key=='Enter'&&n&&document.activeElement!==n)n.click()});
+function end(){
+ const max=Q.length*10,pc=S.score/max*100,tm=Math.round((Date.now()-S.t0)/1000);
+ const R=pc>=90?['S','ARRAY MASTER','#FFD93D']:pc>=75?['A','CODE WIZARD','#2EE6D6']:pc>=60?['B','RISING CODER','#5CFFA1']:pc>=40?['C','GETTING THERE','#FF9F4F']:['D','TRAINING MODE','#FF4F9A'];
+ const first=S.res.filter(r=>!r.skip&&!r.wrong&&!r.hint).length,hints=S.res.filter(r=>r.hint).length,skips=S.res.filter(r=>r.skip).length;
+ const wb=WORLDS.map((n,w)=>{const p=S.res.reduce((a,r,k)=>a+(Q[k].w==w?r.pts:0),0);return '<div class="wb"><span>'+esc(n)+'</span><div><i data-w="'+p*2.5+'"></i></div><b>'+p+'/40</b></div>'}).join('');
+ show('<div class="hero"><p class="px wl">FINAL SCORE</p><h2 class="px" style="font-size:clamp(14px,3vw,22px);margin-bottom:18px">'+esc(S.name)+'</h2>'
+ +'<div class="big"><span id="cn">0</span><small>/'+max+'</small></div><div class="rk" style="color:'+R[2]+';text-shadow:0 0 24px '+R[2]+'">'+R[0]+'</div><p class="px" style="font-size:12px;color:'+R[2]+'">'+R[1]+'</p></div>'
+ +'<div class="stats"><div class="card"><b>'+first+'/'+Q.length+'</b><span>first try</span></div><div class="card"><b>'+hints+'</b><span>hints used</span></div><div class="card"><b>'+skips+'</b><span>skipped</span></div><div class="card"><b>'+Math.floor(tm/60)+':'+String(tm%60).padStart(2,'0')+'</b><span>time</span></div></div>'
+ +'<div class="card">'+wb+'</div><p class="shot">Take a screenshot of this screen and send it to Sir Eijay.</p>');
+ const t0=performance.now(),cn=document.getElementById('cn');
+ (function f(t){const k=Math.min(1,(t-t0)/1400);cn.textContent=Math.round(S.score*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(t0);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>app.querySelectorAll('.wb i').forEach(i=>i.style.width=i.dataset.w+'%')));
+}
+title();
+</script>
+</body>
+</html>
